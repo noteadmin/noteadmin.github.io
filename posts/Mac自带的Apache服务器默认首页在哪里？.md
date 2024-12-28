@@ -1,5 +1,7 @@
 # Mac自带的Apache服务器默认首页在哪里？
 
+
+
 如果通过浏览器访问 http://localhost/ 显示 “It works!”，说明你的 mac 上运行了一个 HTTP 服务器，通常是 macOS 自带的 Apache 服务器 (httpd)。以下是定位其安装位置和配置文件的方法：
 
 **1. 检查 Apache 是否运行**
@@ -38,7 +40,85 @@ DocumentRoot "/Library/WebServer/Documents"
 cat /Library/WebServer/Documents/index.html.en
 ```
 
-**5. 停止或重启 Apache**
+**5. 默认端口**
+
+原始配置为：
+
+```html
+<IfDefine SERVER_APP_HAS_DEFAULT_PORTS>
+    Listen 8080
+</IfDefine>
+<IfDefine !SERVER_APP_HAS_DEFAULT_PORTS>
+    Listen 80
+</IfDefine>
+```
+
+**5.1 配置的含义**
+
+这段配置根据是否定义了 SERVER_APP_HAS_DEFAULT_PORTS 来决定监听的端口：
+
+**5.1.1 IfDefine SERVER_APP_HAS_DEFAULT_PORTS**
+
+```html
+<IfDefine SERVER_APP_HAS_DEFAULT_PORTS>
+    Listen 8080
+</IfDefine>
+```
+
+如果在启动 Apache 时，定义了 SERVER_APP_HAS_DEFAULT_PORTS（通过命令行选项或配置文件），Apache 将监听端口 8080。
+
+例如，如果启动时使用了以下命令：
+
+```bash
+httpd -D SERVER_APP_HAS_DEFAULT_PORTS
+```
+
+那么此时端口 8080 被启用。
+
+**5.1.2 IfDefine !SERVER_APP_HAS_DEFAULT_PORTS**
+
+```html
+<IfDefine !SERVER_APP_HAS_DEFAULT_PORTS>
+    Listen 80
+</IfDefine>
+```
+
+如果 **没有** 定义 SERVER_APP_HAS_DEFAULT_PORTS，Apache 将监听端口 80（默认的 HTTP 端口）。
+
+! 表示取反，即当 SERVER_APP_HAS_DEFAULT_PORTS 未定义时，激活这个配置块。
+
+**5.2 如何定义或取消定义条件**
+
+​	•	使用 -D 参数可以定义条件。例如：
+
+```bash
+httpd -D SERVER_APP_HAS_DEFAULT_PORTS
+```
+
+启动后，SERVER_APP_HAS_DEFAULT_PORTS 将被定义。
+
+​	•	如果不传递 -D SERVER_APP_HAS_DEFAULT_PORTS 参数，则 SERVER_APP_HAS_DEFAULT_PORTS 默认未定义。
+
+**5.3 修改端口**
+
+修改前的原始配置：
+
+```html
+<IfDefine SERVER_APP_HAS_DEFAULT_PORTS>
+    Listen 8080
+</IfDefine>
+<IfDefine !SERVER_APP_HAS_DEFAULT_PORTS>
+    Listen 80
+</IfDefine>
+```
+
+将端口修改为8080:
+
+```bash
+Listen 8080
+```
+
+**6. 停止或重启 Apache**
 
 如果需要停止或重启 Apache，可以使用以下命令：
 
